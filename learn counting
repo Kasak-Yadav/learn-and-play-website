@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counting Chart 1 to 100</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #2e8b57;
+            margin-top: 20px;
+        }
+        .chart {
+            display: grid;
+            grid-template-columns: repeat(10, auto); /* 10 columns */
+            gap: 10px;
+            justify-content: center;
+            padding: 20px;
+        }
+        .box {
+            background-color: #ffe4e1;
+            border: 2px solid #fa8072;
+            border-radius: 5px;
+            padding: 10px;
+            width: 50px;
+            text-align: center;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .box:hover {
+            background-color: #fa8072;
+            transform: scale(1.1);
+        }
+        .number {
+            color: #ff4500;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Counting Chart: 1 to 100</h1>
+    <div class="chart">
+        <!-- Creating the chart -->
+        <script>
+            for (let row = 0; row < 10; row++) { // 10 rows
+                for (let col = 1; col <= 10; col++) { // 10 columns
+                    const number = row * 10 + col; // Calculate the number
+                    document.write(`
+                        <div class="box">
+                            <span class="number">${number}</span>
+                        </div>
+                    `);
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>
