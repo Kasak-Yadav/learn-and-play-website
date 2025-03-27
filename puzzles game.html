@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Puzzle Game</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            margin: 20px auto;
+        }
+
+        .full-image {
+            width: 400px;
+            height: 400px;
+            background-size: cover;
+            border: 2px solid #ddd;
+        }
+
+        .puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-template-rows: repeat(4, 100px);
+            gap: 5px;
+            width: 410px;
+        }
+
+        .piece {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ddd;
+            background-size: 400px 400px;
+            cursor: grab;
+        }
+
+        .piece.dragging {
+            opacity: 0.5;
+        }
+
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Puzzle Game</h1>
+    <p>Drag and drop the puzzle pieces to solve the puzzle according to the full image on the left.</p>
+    <div class="container">
+        <div class="full-image" id="full-image"></div>
+        <div class="puzzle-container" id="puzzle-container"></div>
+    </div>
+    <script>
+        const fullImage = document.getElementById("full-image");
+        const puzzleContainer = document.getElementById("puzzle-container");
+        const imageUrl = "https://static.vecteezy.com/system/resources/previews/011/894/533/original/cute-happy-santa-claus-waving-cartoon-illustration-father-christmas-kris-kringle-saint-nick-winter-christmas-theme-clip-art-vector.jpg";
+        const gridSize = 4;
+        const pieces = [];
+
+        // Set the full image preview
+        fullImage.style.backgroundImage = `url('${imageUrl}')`;
+
+        // Create puzzle pieces
+        for (let row = 0; row < gridSize; row++) {
+            for (let col = 0; col < gridSize; col++) {
+                const piece = document.createElement("div");
+                piece.className = "piece";
+                piece.style.backgroundImage = `url('${imageUrl}')`;
+                piece.style.backgroundPosition = `${-col * 100}px ${-row * 100}px`;
+                piece.setAttribute("draggable", true);
+                pieces.push(piece);
+            }
+        }
+
+        // Shuffle the pieces randomly
+        pieces.sort(() => Math.random() - 0.5);
+
+        // Add pieces to the container
+        pieces.forEach(piece => puzzleContainer.appendChild(piece));
+
+        // Drag-and-drop functionality
+        let draggedPiece = null;
+
+        puzzleContainer.addEventListener("dragstart", (e) => {
+            draggedPiece = e.target;
+            draggedPiece.classList.add("dragging");
+        });
+
+        puzzleContainer.addEventListener("dragend", (e) => {
+            draggedPiece.classList.remove("dragging");
+            draggedPiece = null;
+        });
+
+        puzzleContainer.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            const hoveredPiece = e.target;
+            if (hoveredPiece && hoveredPiece !== draggedPiece && hoveredPiece.classList.contains("piece")) {
+                const draggedIndex = pieces.indexOf(draggedPiece);
+                const hoveredIndex = pieces.indexOf(hoveredPiece);
+
+                // Swap pieces
+                [pieces[draggedIndex], pieces[hoveredIndex]] = [pieces[hoveredIndex], pieces[draggedIndex]];
+
+                // Update puzzle display
+                puzzleContainer.innerHTML = "";
+                pieces.forEach(piece => puzzleContainer.appendChild(piece));
+            }
+        });
+    </script>
+</body>
+</html>
