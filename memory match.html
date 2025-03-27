@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memory Match Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      gap: 10px;
+      justify-content: center;
+      margin: 20px auto;
+      width: 440px;
+    }
+
+    .card {
+      width: 100px;
+      height: 100px;
+      background-color: #0078d7;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: 10px;
+      transform: perspective(600px) rotateY(0deg);
+      transition: transform 0.4s;
+    }
+
+    .card.flipped {
+      background-color: #f39c12;
+      transform: perspective(600px) rotateY(180deg);
+    }
+
+    .card.hidden {
+      visibility: hidden;
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Match Game</h1>
+  <div id="game-board"></div>
+  <script>
+    const board = document.getElementById('game-board');
+    const items = ['🍎', '🍌', '🍇', '🍓', '🍒', '🍍', '🍑', '🥝'];
+    const cards = [...items, ...items];
+    let flippedCards = [];
+    let matchedCards = [];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function createBoard() {
+      shuffle(cards);
+      cards.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.setAttribute('data-id', index);
+        card.setAttribute('data-item', item);
+        card.addEventListener('click', flipCard);
+        board.appendChild(card);
+      });
+    }
+
+    function flipCard() {
+      if (flippedCards.length < 2 && !this.classList.contains('flipped')) {
+        this.textContent = this.getAttribute('data-item');
+        this.classList.add('flipped');
+        flippedCards.push(this);
+
+        if (flippedCards.length === 2) {
+          checkMatch();
+        }
+      }
+    }
+
+    function checkMatch() {
+      const [card1, card2] = flippedCards;
+      if (card1.getAttribute('data-item') === card2.getAttribute('data-item')) {
+        card1.classList.add('hidden');
+        card2.classList.add('hidden');
+        matchedCards.push(card1, card2);
+        flippedCards = [];
+        if (matchedCards.length === cards.length) {
+          alert('You win!');
+        }
+      } else {
+        setTimeout(() => {
+          card1.textContent = '';
+          card2.textContent = '';
+          card1.classList.remove('flipped');
+          card2.classList.remove('flipped');
+          flippedCards = [];
+        }, 1000);
+      }
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
