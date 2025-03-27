@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fdfafa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Quiz Container */
+        #quiz-container {
+            width: 50%;
+            max-width: 600px;
+            background-color: #f6f8faed;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* Buttons and Input Fields */
+        button, select {
+            background-color: #4CAF50;
+            color: #070101;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* Question and Choices */
+        #choices button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: white;
+            border: 1px solid #0b0a0b;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: left;
+            font-size: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        #choices button:hover {
+            background-color: #cecad8;
+            color: #fff;
+        }
+
+        /* Feedback and Score */
+        #feedback {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+
+        .wrong {
+            color: red;
+            font-weight: bold;
+        }
+
+        #score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Hide elements */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <h1>Quiz App</h1>
+
+        <div id="start-container">
+            <button onclick="showCategorySelector()">Start Quiz</button>
+        </div>
+
+        <div id="category-container" class="hidden">
+            <h2>Select Category</h2>
+            <select id="category-select">
+                <option value="general">General Knowledge</option>
+            </select>
+            <button onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <div id="quiz-box" class="hidden">
+            <h2>Category: <span id="selected-category"></span></h2>
+            <div id="question"></div>
+            <div id="choices"></div>
+            <div id="feedback" class="hidden"></div>
+            <button id="next-button" class="hidden" onclick="nextQuestion()">Next</button>
+        </div>
+
+        <div id="score-container" class="hidden">
+            <h2>Your Score: <span id="score"></span></h2>
+            <button id="restart-button" class="hidden" onclick="restartQuiz()">Restart Quiz</button>
+        </div>
+    </div>
+    <script>
+        let currentQuestion = 0;
+        let score = 0;
+
+        const questions = {
+            general: [
+                { question: "What color is the sky?", options: ["Blue", "Red", "Green", "Yellow"], correctAnswer: "Blue" },
+                { question: "What sound does a cow make?", options: ["Meow", "Moo", "Bark", "Oink"], correctAnswer: "Moo" },
+                { question: "How many legs does a spider have?", options: ["6", "8", "4", "10"], correctAnswer: "8" },
+                { question: "What is 1 + 1?", options: ["1", "2", "3", "4"], correctAnswer: "2" },
+                { question: "Which fruit is yellow and curved?", options: ["Apple", "Banana", "Cherry", "Grape"], correctAnswer: "Banana" }
+            ]
+        };
+
+        function showCategorySelector() {
+            document.getElementById("start-container").classList.add("hidden");
+            document.getElementById("category-container").classList.remove("hidden");
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+
+            document.getElementById("category-container").classList.add("hidden");
+            document.getElementById("quiz-box").classList.remove("hidden");
+
+            document.getElementById("selected-category").textContent = "General Knowledge";
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentQ = questions.general[currentQuestion];
+            document.getElementById("question").textContent = currentQ.question;
+
+            const choicesContainer = document.getElementById("choices");
+            choicesContainer.innerHTML = '';
+
+            currentQ.options.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.onclick = () => checkAnswer(option);
+                choicesContainer.appendChild(button);
+            });
+
+            document.getElementById("next-button").classList.add("hidden");
+            document.getElementById("feedback").classList.add("hidden");
+        }
+
+        function checkAnswer(selectedAnswer) {
+            const currentQ = questions.general[currentQuestion];
+
+            const feedback = document.getElementById("feedback");
+            feedback.classList.remove("hidden");
+
+            if (selectedAnswer === currentQ.correctAnswer) {
+                score++;
+                feedback.textContent = "Correct!";
+                feedback.classList.add("correct");
+                feedback.classList.remove("wrong");
+            } else {
+                feedback.textContent = "Wrong!";
+                feedback.classList.add("wrong");
+                feedback.classList.remove("correct");
+            }
+
+            document.getElementById("next-button").classList.remove("hidden");
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+
+            if (currentQuestion < questions.general.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById("quiz-box").classList.add("hidden");
+            document.getElementById("score-container").classList.remove("hidden");
+            document.getElementById("score").textContent = score;
+            document.getElementById("next-button").classList.add("hidden");
+
+            document.getElementById("restart-button").classList.remove("hidden");
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById("score-container").classList.add("hidden");
+            document.getElementById("start-container").classList.remove("hidden");
+            document.getElementById("restart-button").classList.add("hidden");
+        }
+    </script>
+</body>
+</html>
