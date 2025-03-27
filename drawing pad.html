@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Drawing Pad</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: auto;
+            cursor: crosshair;
+            background-color: white;
+        }
+        #controls {
+            text-align: center;
+            margin: 20px;
+        }
+        #controls input, #controls select, #controls button {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <label for="bgColor">Background Color:</label>
+        <input type="color" id="bgColor" value="#ffffff">
+        <label for="color">Brush Color:</label>
+        <input type="color" id="color" value="#000000">
+        <label for="transparency">Transparency:</label>
+        <input type="range" id="transparency" value="1" min="0" max="1" step="0.1">
+        <span id="transparencyValue">1</span>
+        <label for="sizeSlider">Shape Size:</label>
+        <input type="range" id="sizeSlider" value="50" min="10" max="200">
+        <span id="sizeValue">50</span>
+        <label for="shape">Shape:</label>
+        <select id="shape">
+            <option value="free">Free Draw</option>
+            <option value="line">Line</option>
+            <option value="rectangle">Rectangle</option>
+            <option value="circle">Circle</option>
+            <option value="text">Text</option>
+        </select>
+        <input type="text" id="textInput" placeholder="Enter text" style="display:none;">
+        <button id="save">Save Canvas</button>
+        <button id="clear">Clear Canvas</button>
+    </div>
+    <canvas id="drawingPad" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('drawingPad');
+        const ctx = canvas.getContext('2d');
+        const bgColorPicker = document.getElementById('bgColor');
+        const colorPicker = document.getElementById('color');
+        const transparencySlider = document.getElementById('transparency');
+        const transparencyValue = document.getElementById('transparencyValue');
+        const sizeSlider = document.getElementById('sizeSlider');
+        const sizeValue = document.getElementById('sizeValue');
+        const shapeSelector = document.getElementById('shape');
+        const textInput = document.getElementById('textInput');
+        const saveButton = document.getElementById('save');
+        const clearButton = document.getElementById('clear');
+        let drawing = false, startX = 0, startY = 0;
+
+        // Update transparency value display
+        transparencySlider.addEventListener('input', () => {
+            transparencyValue.textContent = transparencySlider.value;
+        });
+
+        // Update size value display
+        sizeSlider.addEventListener('input', () => {
+            sizeValue.textContent = sizeSlider.value;
+        });
+
+        // Display text input for Text mode
+        shapeSelector.addEventListener('change', () => {
+            textInput.style.display = shapeSelector.value === 'text' ? 'inline' : 'none';
+        });
+
+        // Set initial background color
+        ctx.fillStyle = bgColorPicker.value;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        bgColorPicker.addEventListener('input', () => {
+            ctx.fillStyle = bgColorPicker.value;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        });
+
+        canvas.addEventListener('mousedown', (event) => {
+            drawing = true;
+            startX = event.offsetX;
+            startY = event.offsetY;
+        });
+
+        canvas.addEventListener('mouseup', (event) => {
+            if (drawing) {
+                const endX = event.offsetX;
+                const endY = event.offsetY;
+                const shape = shapeSelector.value;
+
+                ctx.strokeStyle = colorPicker.value;
+                ctx.globalAlpha = transparencySlider.value;
+                ctx.lineWidth = 2;
+
+                if (shape === 'line') {
+                    drawLine(startX, startY, endX, endY);
+                } else if (shape === 'rectangle') {
+                    drawRectangle(startX, startY, sizeSlider.value);
+                } else if (shape === 'circle') {
+                    drawCircle(startX, startY, sizeSlider.value);
+                } else if (shape === 'text') {
+                    drawText(startX, startY, textInput.value);
+                }
+
+                drawing = false;
+                ctx.beginPath();
+            }
+        });
+
+        canvas.addEventListener('mousemove', (event) => {
+            if (drawing && shapeSelector.value === 'free') {
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = colorPicker.value;
+                ctx.globalAlpha = transparencySlider.value;
+                ctx.lineTo(event.offsetX, event.offsetY);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(event.offsetX, event.offsetY);
+            }
+        });
+
+        clearButton.addEventListener('click', () => {
+            ctx.fillStyle = bgColorPicker.value;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        });
+
+        saveButton.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'drawing.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+
+        function drawLine(x1, y1, x2, y2) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+        function drawRectangle(x1, y1, size) {
+            ctx.beginPath();
+            ctx.strokeRect(x1, y1, size, size);
+        }
+
+        function drawCircle(x1, y1, size) {
+            ctx.beginPath();
+            ctx.arc(x1, y1, size / 2, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function drawText(x, y, text) {
+            ctx.font = `${sizeSlider.value}px Arial`;
+            ctx.fillStyle = colorPicker.value;
+            ctx.globalAlpha = transparencySlider.value;
+            ctx.fillText(text, x, y);
+        }
+    </script>
+</body>
+</html>
